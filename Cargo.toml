@@ -1,0 +1,146 @@
+[package]
+name = "secret-manager"
+version = "0.1.0"
+edition = "2021"
+authors = ["Security Team"]
+description = "Security-first secret management library for Rust"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/your-org/secret-manager"
+keywords = ["security", "secrets", "encryption", "vault", "kubernetes"]
+categories = ["cryptography", "security"]
+
+[lib]
+name = "secret_manager"
+path = "src/lib.rs"
+
+[features]
+default = ["encryption", "rotation", "access-control", "audit"]
+encryption = ["aes-gcm", "chacha20poly1305", "pbkdf2", "argon2"]
+rotation = ["tokio/time"]
+access-control = ["rbac"]
+audit = ["chrono", "serde"]
+kubernetes = ["kube", "kube-runtime", "k8s-openapi"]
+test-utils = []
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+async-trait = "0.1"
+
+# Cryptography
+aes-gcm = "0.10"
+chacha20poly1305 = "0.10"
+pbkdf2 = { version = "0.12", features = ["parallel"] }
+argon2 = "0.5"
+sha2 = "0.10"
+rand = "0.8"
+getrandom = "0.2"
+zeroize = "1.7"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID
+uuid = { version = "1.6", features = ["v4", "serde"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Kubernetes (optional)
+kube = { version = "0.88", features = ["runtime", "client"], optional = true }
+kube-runtime = { version = "0.88", optional = true }
+k8s-openapi = { version = "0.20", features = ["v1_28"], optional = true }
+
+# Storage backends (optional)
+sqlx = { version = "0.7", features = ["postgres", "sqlite", "runtime-tokio"], optional = true }
+redis = { version = "0.24", features = ["tokio-comp", "connection-manager"], optional = true }
+
+# Property-based testing (dev dependency)
+proptest = { version = "1.4", optional = true }
+
+[dev-dependencies]
+# Testing
+criterion = "0.5"
+proptest = "1.4"
+quickcheck = "1.0"
+
+# Async testing
+futures = "0.3"
+tokio-test = "0.4"
+
+# Mocking
+mockall = "0.12"
+
+# Testcontainers for integration tests
+testcontainers = "0.15"
+
+# Coverage
+tarpaulin = "0.27"
+
+# Fuzzing
+cargo-fuzz = "0.11"
+
+# Security auditing
+cargo-audit = "0.20"
+
+[[bench]]
+name = "encryption_bench"
+harness = false
+path = "benches/encryption_bench.rs"
+
+[[bench]]
+name = "rotation_bench"
+harness = false
+path = "benches/rotation_bench.rs"
+
+[[bench]]
+name = "access_control_bench"
+harness = false
+path = "benches/access_control_bench.rs"
+
+[[bench]]
+name = "concurrent_bench"
+harness = false
+path = "benches/concurrent_bench.rs"
+
+[profile.dev]
+opt-level = 0
+
+[profile.test]
+opt-level = 1
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.bench]
+inherits = "release"
+
+# Security audit configuration
+[metadata.audit]
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/RustSec/advisory-db"]
+
+[workspace.metadata.instruction]
+# Build instructions
+build = "cargo build --release"
+
+# Test instructions
+test = "cargo test --all"
+
+# Security audit instructions
+audit = "cargo audit && cargo deny check"
+
+# Coverage instructions
+coverage = "cargo tarpaulin --out Html --output-dir ./coverage --timeout 120"
