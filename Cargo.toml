@@ -84,13 +84,10 @@ mockall = "0.12"
 testcontainers = "0.15"
 
 # Coverage
-tarpaulin = "0.27"
 
 # Fuzzing
-cargo-fuzz = "0.11"
 
 # Security auditing
-cargo-audit = "0.20"
 
 [[bench]]
 name = "encryption_bench"
@@ -128,19 +125,3 @@ strip = true
 inherits = "release"
 
 # Security audit configuration
-[metadata.audit]
-db-path = "~/.cargo/advisory-db"
-db-urls = ["https://github.com/RustSec/advisory-db"]
-
-[workspace.metadata.instruction]
-# Build instructions
-build = "cargo build --release"
-
-# Test instructions
-test = "cargo test --all"
-
-# Security audit instructions
-audit = "cargo audit && cargo deny check"
-
-# Coverage instructions
-coverage = "cargo tarpaulin --out Html --output-dir ./coverage --timeout 120"
